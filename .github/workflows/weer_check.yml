@@ -1,0 +1,31 @@
+name: Weer Check Maasland
+
+on:
+  schedule:
+    # Elke zondag om 20:00 Nederlandse tijd (= 18:00 UTC in zomer, 19:00 UTC in winter)
+    # We gebruiken 18:00 UTC zodat het in de zomer klopt (zomertijd = UTC+2)
+    - cron: '0 18 * * 0'
+  workflow_dispatch: # Hiermee kun je het ook handmatig starten (voor testen!)
+
+jobs:
+  weer-check:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Haal de code op
+        uses: actions/checkout@v4
+
+      - name: 🐍 Installeer Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: 📦 Installeer benodigde packages
+        run: pip install requests
+
+      - name: 🌤️ Voer het weer check script uit
+        env:
+          WHATSAPP_ACCESS_TOKEN: ${{ secrets.WHATSAPP_ACCESS_TOKEN }}
+          WHATSAPP_PHONE_NUMBER_ID: ${{ secrets.WHATSAPP_PHONE_NUMBER_ID }}
+          ONTVANGER_TELEFOONNUMMER: ${{ secrets.ONTVANGER_TELEFOONNUMMER }}
+        run: python weer_check_maasland.py
